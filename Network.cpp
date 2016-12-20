@@ -4,8 +4,8 @@
 
 #include "stdafx.h"
 #include "Network.h"
-#include "Math.h";
 #include <stdio.h>
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -246,7 +246,6 @@ void Network::thresholdNeuronOutputs( void )
 {
 	int i;
 	
-
 	for(i = 0; i < networkDimension; ++i){
 		if(neuronActivation[i] > neuronThresholds[i]){
 			neuronOutput[i] = neuronActivation[i] - neuronThresholds[i];
@@ -571,29 +570,25 @@ void Network::setNetworkOutputs( double value )
 	
 
 }
-
 /* --------------------------------------------------
 
-squashNeuronOutput
-Function to apply the scale logistic funtion to a double value
-Unscale version have the value 
-max = 1.0, slope = 1.0, offset = 0
+	squashingFunction
 
-Scaling of the neuron output with the squashing function 
-	max sets the maximum value of the neuron output (min value should be 0)
-	slope maps the a wide output range with low slope and a narrow output range with large slope
-	offset shifts the input on the x axis
+	default value for max, slope, xoffset
+	max = 1, slope = 1, xoffset = 0
 
-Last revised: 11/07/16 CL, IT, ZC, JJ, FG
+
 */
-double Network::squashNeuronOutput(double value, double max, double slope, double offset)
-{
-	
-	double result;
-	
-	result = max/(1+exp(-value * slope + offset));	
 
-	return (result);
+double Network::squashingFunction(double value, double max, double slope, double xoffset)
+{
+	double result;
+
+	result = max / (1 - exp(value * slope + xoffset));
+
+	return result;
+
+
 }
 
 
@@ -635,33 +630,8 @@ void Network::cycleNetwork( void )
 	networkActivation( );						// perform adjusted matrix multiplication of the weights and current network state
 //	setNetworkNeuronOutput( );					// Transform activations into outputs and copy 
 	copyNeuronActivationsToNeuronOutputs( );
-//	thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
-	squashNetworkOutput( );
+	thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
 	setNetworkOuput( );							// Copy the network output to the output array *+* consider moving this call out of the function to allow network "settling time" before external functions have access to the network output
-
-}
-
-/* --------------------------------------------------
-
-cycleNetwork
-
-a function meant to supply the network outputs to outside process
-
-
-Notes:
-1. Inputs  should be set separately. This routine does not make use of external input. It uses the current neuron outputs into inputs.
-The network inputs must be set before calling this routine to get the network to respond to new input
-information.
-
-*/
-void Network::squashNetworkOutput(void)
-{
-	int i;
-	for (i = 0; i < networkDimension; ++i) {
-		networkOutputs[i] = squashNeuronOutput(networkOutputs[i], 1.0, 1.0, 0.0);
-	}
-																				
-	setNetworkOuput();							// Copy the network output to the output array *+* consider moving this call out of the function to allow network "settling time" before external functions have access to the network output
 
 }
 
@@ -1137,6 +1107,32 @@ void Network::writeNetworkOutputStateToFile( char * file_name )
 
 /* --------------------------------------------------
 
+writeNetworkSquashedOutputToFile
+
+takes as input a file name
+writes the file to be formatted according to the standard network form
+changes to this should be mirrored in readNetworkFromFile
+
+*/
+void Network::writeNetworkSquashedOutputStateToFile(char * file_name)
+{
+	int i;
+	FILE *fp;
+
+	fp = fopen(file_name, "a");
+
+	for (i = 0; i < networkDimension; ++i) {
+
+		fprintf(fp, "%lf ", squashingFunction(neuronOutput[i], 1, 1, 0));
+
+	}
+
+	fprintf(fp, "\n");
+	fclose(fp);
+}
+
+/* --------------------------------------------------
+
 writeNetworkActivationStateToFile
   
 	takes as input a file name
@@ -1188,6 +1184,20 @@ void Network::printNetworkOutputState( void )
 	printf("\n");
 
 }
+
+void Network::printNetworkSquashedOutputState(void)
+{
+	int i;
+
+	for (i = 0; i < networkDimension; ++i) {
+
+		printf("%3.3lf ", squashingFunction(neuronOutput[i], 1, 1 ,0));
+	}
+
+	printf("\n");
+
+}
+
 
 /* --------------------------------------------------
 
