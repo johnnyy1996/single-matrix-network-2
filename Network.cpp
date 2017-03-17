@@ -1,12 +1,12 @@
 // Network.cpp: implementation of the Network class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#include <iostream>
 #include "stdafx.h"
 #include "Network.h"
 #include <stdio.h>
 #include <math.h>
-
+using namespace std;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -121,7 +121,6 @@ void Network::networkActivation( void  )
 
 	// -- Update autapses
 	for( neuron_number = 0; neuron_number < networkDimension; ++neuron_number){	
-
 		k = networkDimension*neuron_number + neuron_number;  // you should make this a function rather than computing it 2x in this routine, it could be re-used for other routines and avoid problems of different computations in different locations
 		neuronActivation[neuron_number] = neuronActivation[neuron_number] * networkWeights[k];
 //printf("-- %2.3lf %2.3lf\n", neuronActivation[neuron_number], networkWeights[k]);
@@ -134,7 +133,7 @@ void Network::networkActivation( void  )
 			if(neuron_number != source_neuron_number){						// used self weights above, avoid double dipping
 				k = networkDimension*source_neuron_number + neuron_number;	// obtain the index of the 2d weight array represented as a 1 d array.
 				neuronActivation[neuron_number] += neuronOutput[source_neuron_number] * networkWeights[k];
-//printf("-- %2.3lf %2.3lf\n", neuronActivation[neuron_number], networkWeights[k]);
+				//printf("-- %2.3lf %2.3lf\n", neuronActivation[neuron_number], networkWeights[k]);
 			}
 		}
 
@@ -256,6 +255,31 @@ void Network::thresholdNeuronOutputs( void )
 	}
 //printf("\n ");
 
+}
+
+
+/* --------------------------------------------------
+
+thresholdNeuronOutputs
+
+Computes a hard thresholded output from the neuron activations using the individual neuron threshold
+
+*/
+
+void Network::squashNeuronOutputs(void)
+{
+	int i;
+
+	for (i = 0; i < networkDimension; ++i) {
+		if (neuronActivation[i] > neuronThresholds[i]) {
+			neuronOutput[i] = squashingFunction(neuronActivation[i],1.0,-2.0,0.0);
+			//			neuronActivation[i] = neuronActivation[i];
+		}
+		else neuronOutput[i] = 0.0;
+		//printf("*** %2.3lf %2.3lf\n",neuronOutput[i],neuronThresholds[i]);
+	}
+	//printf("\n ");
+	//squashingFunction(double value, double max, double slope, double xoffset)
 }
 
 /* --------------------------------------------------
@@ -583,12 +607,10 @@ void Network::setNetworkOutputs( double value )
 double Network::squashingFunction(double value, double max, double slope, double xoffset)
 {
 	double result;
-
-	result = max / (1 - exp(value * slope + xoffset));
-
+	// result = max / (1 - exp(value * slope + xoffset));
+	result = max / (1 + exp(value * slope + xoffset));
+	
 	return result;
-
-
 }
 
 
@@ -630,7 +652,8 @@ void Network::cycleNetwork( void )
 	networkActivation( );						// perform adjusted matrix multiplication of the weights and current network state
 //	setNetworkNeuronOutput( );					// Transform activations into outputs and copy 
 	copyNeuronActivationsToNeuronOutputs( );
-	thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
+	squashNeuronOutputs();
+	//thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
 	setNetworkOuput( );							// Copy the network output to the output array *+* consider moving this call out of the function to allow network "settling time" before external functions have access to the network output
 
 }
@@ -965,7 +988,7 @@ int Network::readNetworkFromFile( char * file_name )
 		for( i = 0 ; i < networkDimension*networkDimension; ++i) fscanf(fp,"%d",&plasticWeightsMask[i]);
 	}
 
-	fclose(fp);
+	//fclose(fp);
 	return(error);
 }
 	
@@ -1123,7 +1146,7 @@ void Network::writeNetworkSquashedOutputStateToFile(char * file_name)
 
 	for (i = 0; i < networkDimension; ++i) {
 
-		fprintf(fp, "%lf ", squashingFunction(neuronOutput[i], 1, 1, 0));
+		fprintf(fp, "%lf ", squashingFunction(neuronOutput[i], 1, -2, 0));
 
 	}
 

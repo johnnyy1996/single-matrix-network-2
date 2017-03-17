@@ -1,54 +1,35 @@
 // SIngleMatrixNetwork.cpp : Defines the entry point for the console application.
 //
-
+#include<iostream>
 #include "stdafx.h"
 #include "Network.h"
 #include <math.h>
 #include <stdio.h>
 
+using namespace std;
+
+const int maxCycles = 10;
+
 int main(int argc, char* argv[])
 {
-	Network khepera("Ian_Test_Network_Changing_Inputs.txt"); //Ian_Test_Network_Equal_Vary_Inputs.txt
+	Network Khepera(2, 0, 2, "Kruzel.txt");
 
 	int i = 0;
-	double input[7];
-	while (i < 710) {
+	double input[2];
 
-		khepera.cycleNetwork();
-		khepera.printNetworkOutputState();
-
-		khepera.writeNetworkOutputStateToFile("Ian_Changing_Inputs_Output_v7.txt");
-
-		/*
-		if (i >= 201) {
-			input[0] = input[1] = input[2] = i - 200;
-			input[3] = input[4] = input[5] = 455 - input[0];
-			input[6] = 1;
-			khepera.setNetworkInput(input);
-		}
-		if (i >= 456) {
-			input[0] = input[1] = input[2] = 455 - input[0];
-			input[3] = input[4] = input[5] = i - 200;
-			input[6] = 1;
-			khepera.setNetworkInput(input);
-		}
-		*/
+	while (i < maxCycles) {
 		
+		input[0] = 0; //left input
+		input[1] = .5; //right input
 		
-		if (i >= 200) {
-			input[0] = input[1] = input[2] = 1.0;
-			input[3] = input[4] = input[5] = 0.5;
-			khepera.setNetworkInput(input);
-		}
-
-		if (i >= 400) {
-			input[0] = input[1] = input[2] = 0.5;
-			input[3] = input[4] = input[5] = 1.0;
-			khepera.setNetworkInput(input);
-		}
-		++i;
-	}	
-
+		Khepera.setNetworkInput(input);
+		Khepera.cycleNetwork();
+		Khepera.writeNetworkSquashedOutputStateToFile("KheperaOUTPUTSquashed.txt");
+		Khepera.printNetworkOutputState();
+		Khepera.writeNetworkOutputStateToFile("Khepera_out.txt");
+		i++;
+	}
+	
 	return 0;
 
 }

@@ -67,6 +67,7 @@ private:
 	void Network::normalizeNonDiagonalExcitatoryNeuronWeights(void);
 	void Network::setNeuronWeightTotal(double value);
 	int Network::computeWeightIndex(int source_neuron_number, int target_neuron_number);
+	void Network::squashNeuronOutputs(void);
 
 public:
 	void Network::cycleNetwork(void);
