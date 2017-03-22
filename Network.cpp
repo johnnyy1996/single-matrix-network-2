@@ -6,6 +6,7 @@
 #include "Network.h"
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -267,13 +268,13 @@ Computes a hard thresholded output from the neuron activations using the individ
 
 */
 
-void Network::squashNeuronOutputs(void)
+void Network::squashNeuronOutputs(double max, double slope, double xoffset)
 {
 	int i;
 
 	for (i = 0; i < networkDimension; ++i) {
 		if (neuronActivation[i] > neuronThresholds[i]) {
-			neuronOutput[i] = squashingFunction(neuronActivation[i],1.0,-2.0,0.0);
+			neuronOutput[i] = squashingFunction(neuronActivation[i],1.0,1.0,0.0);
 			//			neuronActivation[i] = neuronActivation[i];
 		}
 		else neuronOutput[i] = 0.0;
@@ -653,8 +654,8 @@ void Network::cycleNetwork( void )
 	networkActivation( );						// perform adjusted matrix multiplication of the weights and current network state
 //	setNetworkNeuronOutput( );					// Transform activations into outputs and copy 
 	copyNeuronActivationsToNeuronOutputs( );
-	squashNeuronOutputs();
-	//thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
+	squashNeuronOutputs(1.0,1.0,0.0);
+	thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
 	setNetworkOuput( );							// Copy the network output to the output array *+* consider moving this call out of the function to allow network "settling time" before external functions have access to the network output
 
 }
@@ -1112,7 +1113,7 @@ writeNetworkOutputToFile
    changes to this should be mirrored in readNetworkFromFile
 
 */
-void Network::writeNetworkOutputStateToFile( char * file_name )
+void Network::writeNetworkOutputStateToFile(char * file_name, int currentCycle)
 {
 	int i;
 	FILE *fp;
@@ -1121,6 +1122,7 @@ void Network::writeNetworkOutputStateToFile( char * file_name )
 
 	for( i=0 ; i < networkDimension; ++i){
 
+		//std::cout << "Current cycle: " << currentCycle << std::endl;
 		fprintf(fp,"%lf ",  neuronOutput[i]);
 
 	}
@@ -1147,7 +1149,7 @@ void Network::writeNetworkSquashedOutputStateToFile(char * file_name)
 
 	for (i = 0; i < networkDimension; ++i) {
 
-		fprintf(fp, "%lf ", squashingFunction(neuronOutput[i], 1, -2, 0));
+		fprintf(fp, "%lf ", squashingFunction(neuronOutput[i], 1,1, 0));
 
 	}
 
