@@ -42,12 +42,10 @@ int main(int argc, char* argv[])
 
 		wOscillator.cycleNetwork();
 		wOscillator.printNetworkOutputState();
-		//std::cout << "Current Cycle: " << currentCycle << std::endl;
-		wOscillator.writeNetworkOutputStateToFile("NEWOscillator_out_9_cont1.txt", currentCycle);
+		wOscillator.writeNetworkOutputStateToFile("NEWOscillator_out_9_cont1.txt");
 
 		wOscillator2.cycleNetwork();
-		//wOscillator2.printNetworkOutputState();
-		wOscillator2.writeNetworkOutputStateToFile("NEWOscillator_out10_cont1.txt", currentCycle);
+		wOscillator2.writeNetworkOutputStateToFile("NEWOscillator_out10_cont1.txt");
 
 		i++;
 	}

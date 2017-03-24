@@ -1113,7 +1113,7 @@ writeNetworkOutputToFile
    changes to this should be mirrored in readNetworkFromFile
 
 */
-void Network::writeNetworkOutputStateToFile(char * file_name, int currentCycle)
+void Network::writeNetworkOutputStateToFile(char * file_name)
 {
 	int i;
 	FILE *fp;
