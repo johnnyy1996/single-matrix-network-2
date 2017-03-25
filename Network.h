@@ -81,6 +81,7 @@ public:
 	void Network::setNetworkWeightsUpperTriangle(double value, int start_row, int end_row, int start_column, int end_column);
 	void Network::setNetworkWeightsLowerTriangle(double value, int start_row, int end_row, int start_column, int end_column);
 	void Network::writeNetworkOutputStateToFile(char * file_name);
+	void Network::writeNetworkOutputStateToFile(char * file_name, int currentCylce);// Added by Roberto Coyotl
 	void Network::writeNetworkSquashedOutputStateToFile(char * file_name); // 11/11/2016
 	void Network::writeNetworkActivationStateToFile(char * file_name);
 	void Network::writeNetworkWeightsToFile(char * file_name);

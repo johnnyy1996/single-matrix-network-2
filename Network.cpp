@@ -1130,6 +1130,24 @@ void Network::writeNetworkOutputStateToFile(char * file_name)
 	fprintf(fp,"\n");
 	fclose(fp);
 }
+/* This version of writeNetworkOutputStateToFile, also print the current cylce to the file */
+void Network::writeNetworkOutputStateToFile(char * file_name, int currentCylce)
+{
+	int i;
+	FILE *fp;
+
+	fp = fopen(file_name, "a");
+
+	for (i = 0; i < networkDimension; ++i) {
+
+		//std::cout << "Current cycle: " << currentCycle << std::endl;
+		fprintf(fp, "%lf ", neuronOutput[i]);
+
+	}
+
+	fprintf(fp, "\n");
+	fclose(fp);
+}
 
 /* --------------------------------------------------
 
@@ -1156,6 +1174,7 @@ void Network::writeNetworkSquashedOutputStateToFile(char * file_name)
 	fprintf(fp, "\n");
 	fclose(fp);
 }
+
 
 /* --------------------------------------------------
 
