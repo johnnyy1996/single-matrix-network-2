@@ -70,7 +70,7 @@ Network::Network( char * file_name )
 
 Network::~Network()
 {
-	printf("Network destruction.\n");
+	//printf("Network destruction.\n");
 }
 
 
@@ -610,7 +610,7 @@ double Network::squashingFunction(double value, double max, double slope, double
 {
 	double result;
 	// result = max / (1 - exp(value * slope + xoffset));
-	result = max / (1 + exp(value * slope + xoffset));
+	result = max / (1 + exp(-(value * slope + xoffset)));
 	
 	return result;
 }
@@ -654,7 +654,7 @@ void Network::cycleNetwork( void )
 	networkActivation( );						// perform adjusted matrix multiplication of the weights and current network state
 //	setNetworkNeuronOutput( );					// Transform activations into outputs and copy 
 	copyNeuronActivationsToNeuronOutputs( );
-	squashNeuronOutputs(1.0,1.0,0.0);
+	//squashNeuronOutputs(1.0,1.0,0.0);
 	thresholdNeuronOutputs( );					// Transform activations into outputs following hard threshold
 	setNetworkOuput( );							// Copy the network output to the output array *+* consider moving this call out of the function to allow network "settling time" before external functions have access to the network output
 
@@ -1130,6 +1130,7 @@ void Network::writeNetworkOutputStateToFile(char * file_name)
 	fprintf(fp,"\n");
 	fclose(fp);
 }
+
 /* This version of writeNetworkOutputStateToFile, also print the current cylce to the file */
 void Network::writeNetworkOutputStateToFile(char * file_name, int currentCylce)
 {
@@ -1148,7 +1149,18 @@ void Network::writeNetworkOutputStateToFile(char * file_name, int currentCylce)
 	fprintf(fp, "\n");
 	fclose(fp);
 }
+void Network::writeNetworkOuputToFile(char *fileName)
+{
+	int i;
+	FILE *fp;
+	fp = fopen(fileName , "a");
+	for (i = 0; i< numberOfOutputs; ++i) {
+		fprintf( fp, "%f ", networkOutputs[i]);
+	}
+	fprintf(fp,"\n");
+	fclose(fp);
 
+}
 /* --------------------------------------------------
 
 writeNetworkSquashedOutputToFile

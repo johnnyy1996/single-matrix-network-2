@@ -14,6 +14,7 @@
 #define MAX_NET_OUTPUTS 10		// Cannot exceed the size of the net
 #define MAX_DUMMY_STRING_LENGTH 30
 
+
 class Network
 {
 public:
@@ -92,6 +93,8 @@ public:
 	void Network::setNetworkWeights(double value);
 	double Network::squashingFunction(double value, double max, double slope, double xoffset); // 11/07/2016
 	void Network::PrintNetworkState(void);
+	void Network::writeNetworkOuputToFile(char *fileName);// Addedby roberto Coyotl 4/11/17
+
 
 };
 
