@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
+#include <iostream>
+#include <fcntl.h>
+#include <sys/types.h>
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -333,8 +337,7 @@ void Network::setNetworkWeights( double value )
 */
 void Network::setNetworkWeightsDiagonalRange( double value, int start_row_and_col, int end_row_and_col )
 {
-	int i;
-	
+	int i;	
 	for(i = start_row_and_col; i < end_row_and_col; i++) {
 		networkWeights[i*networkDimension + i] = value;
 		
@@ -353,14 +356,16 @@ void Network::setNetworkWeightsDiagonalRange( double value, int start_row_and_co
 void Network::setNetworkWeightsRectangle( double value, int start_row, int end_row, int start_column, int end_column )
 {
 	int i, j, index;
-	
+	int col_start = start_column;
+
 	for(i = start_column; i < end_column; i++) {
 		for(j = start_row; j < end_row ; j++) {
 			index = networkDimension*i +j;
 			networkWeights[index] = value;
+
 		}
+
 	}
-	
 }
 
 /* --------------------------------------------------
@@ -386,6 +391,7 @@ void Network::setNetworkWeightsUpperTriangle( double value, int start_row, int e
 	
 }
 
+//void Network::setNetworkWeightByRow(int row_number, in)
 /* --------------------------------------------------
 
   setNetworkWeightsLowerTriangle
@@ -996,21 +1002,28 @@ int Network::readNetworkFromFile( char * file_name )
 	
 /* --------------------------------------------------
 
-writeNetworkToFile
+`File
   
 	takes as input a file name
    writes the file to be formatted according to the standard network form
    changes to this should be mirrored in readNetworkFromFile
 
 */
-int Network::writeNetworkToFile( char * file_name )
+/*  This function overwrites a matrix weight in your file. 
+	You must specify which weight you want to write by specifing the row and column
+*/
+int Network::writeNetworkToFile( char * file_name)
 {
+
+
+
 	int i, item_count = 0, error = 0;
 	FILE *fp;
 	fp= fopen(file_name,"w");
 
 	if( fp == 0) error = 1;
 	else{
+		
 		fprintf(fp,"numberOfInputs %d\n",numberOfInputs);
 		fprintf(fp,"numberOfOutputs %d\n",numberOfOutputs);
 		fprintf(fp,"numberOfInterNeurons %d\n",numberOfInterNeurons);
@@ -1039,8 +1052,9 @@ int Network::writeNetworkToFile( char * file_name )
 	// Write the stored neuron weight total
 		fprintf(fp,"neuronWeightTotal\n");
 		for( i = 0 ; i < networkDimension; ++i) fprintf(fp,"%lf ",neuronWeightTotal[i]);
-		fprintf(fp,"\n");
+		fprintf(fp,"\n"); 
 	// Write the stored network weights
+
 		fprintf(fp,"networkweights\n");
 		item_count = 0;		// Set up counter for number of rows printed
 		for( i = 0 ; i < networkDimension*networkDimension; ++i){
@@ -1052,6 +1066,7 @@ int Network::writeNetworkToFile( char * file_name )
 			}
 		}
 		fprintf(fp,"\n");
+
 	// Write the stored network inputs
 		fprintf(fp,"networkinputs\n");
 		for( i = 0 ; i < numberOfInputs; ++i) fprintf(fp,"%lf ",networkInputs[i]);
@@ -1072,13 +1087,117 @@ int Network::writeNetworkToFile( char * file_name )
 			}
 		}
 		fprintf(fp,"\n");
+		
 	}
 
+	
 	fclose(fp);
 	return(error);
 }
+/*  pick and choose witch weights you want, every other weight is set to zero  */
+int Network::writeNetworkToFile(char * file_name, double alpha, double beta, double gamma, double delta, double epsilon, double eta)
+{
+
+	cout << "!! STARTING A NEW TRIAL!!" << endl;
+
+	int i, item_count = 0, error = 0;
+	FILE *fp;
+	fp = fopen(file_name, "w");
+
+	if (fp == 0) error = 1;
+	else {
+
+		fprintf(fp, "numberOfInputs %d\n", numberOfInputs);
+		fprintf(fp, "numberOfOutputs %d\n", numberOfOutputs);
+		fprintf(fp, "numberOfInterNeurons %d\n", numberOfInterNeurons);
+		fprintf(fp, "networkDimension %d\n", networkDimension); // perhaps this should be omitted from the write and computed on the read or in the constructor
+
+		// Write the stored network activations
+		fprintf(fp, "networkActivations\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%lf ", neuronActivation[i]);
+		fprintf(fp, "\n");
+		// Write the stored network outputs
+		fprintf(fp, "networkOutputs\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%lf ", neuronOutput[i]);
+		fprintf(fp, "\n");
+		// Write the stored network thresholds
+		fprintf(fp, "neuronThreshold\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%lf ", neuronThresholds[i]);
+		fprintf(fp, "\n");
+		// Write the stored neuron learning rates
+		fprintf(fp, "neuronLearningRate\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%lf ", neuronLearningRate[i]);
+		fprintf(fp, "\n");
+		// Write the stored neuron refractory states
+		fprintf(fp, "neuronRefactoryState\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%f ", 0.0);
+		fprintf(fp, "\n");
+		// Write the stored neuron weight total
+		fprintf(fp, "neuronWeightTotal\n");
+		for (i = 0; i < networkDimension; ++i) fprintf(fp, "%lf ", neuronWeightTotal[i]);
+		fprintf(fp, "\n");
+		// Write the stored network weights
+
+		fprintf(fp, "networkweights\n");
+		int column_count = 0;
+		int row_count = 0;// Set up counter for number of rows printed
+		for (i = 0; i < networkDimension*networkDimension; ++i) {
+			if ((row_count == 3 && column_count == 0) || (row_count == 4 && column_count == 0)) {
+				fprintf(fp, "%lf ", alpha);
+			}
+			else if ((row_count == 1 && column_count == 1) || (row_count == 2 && column_count == 2)) {
+				fprintf(fp, "%lf ", beta);
+			}
+			else if ((row_count == 3 && column_count == 3) || (row_count == 4 && column_count == 4)) {
+				fprintf(fp, "%lf ", gamma);
+			}
+			else if ((row_count == 3 && column_count == 1) || (row_count == 4 && column_count == 2)) {
+				fprintf(fp, "%lf ", delta);
+			}
+			else if ((row_count == 1 && column_count == 3) || (row_count == 2 && column_count == 4)) {
+				fprintf(fp, "%f ", epsilon);
+			}
+			else if ((row_count == 4 && column_count == 3) || (row_count == 3 && column_count == 4)) {
+				fprintf(fp, "%f ", eta);
+			}
+			else {
+				fprintf(fp, "%lf ", 0);
+			}
+			++column_count;
+
+			if (column_count == networkDimension) {
+				fprintf(fp, "\n");       // place a new line after each row printed to make reading of the output file intuitive
+				column_count = 0;
+				++row_count; // Network dimension has bee reached, startnew row. 
+			}
+		}
+		fprintf(fp, "\n");
 
 
+		// Write the stored network inputs
+		fprintf(fp, "networkinputs\n");
+		for (i = 0; i < numberOfInputs; ++i) fprintf(fp, "%lf ", networkInputs[i]);
+		fprintf(fp, "\n");
+		// Write the stored network outputs
+		fprintf(fp, "networkoutputs\n");
+		for (i = 0; i < numberOfOutputs; ++i) fprintf(fp, "%f ", 0.0);
+		fprintf(fp, "\n");
+		// Write the stored plastic weights mask
+		fprintf(fp, "networkplasticweightsmask\n");
+		item_count = 0;		// Set up counter for number of rows printed
+		for (i = 0; i < networkDimension*networkDimension; ++i) {
+			fprintf(fp, "%d ", plasticWeightsMask[i]);
+			++item_count;
+
+			if (item_count == networkDimension) {  // place a new line after each row printed to make reading of the output file intuitive
+				fprintf(fp, "\n");
+				item_count = 0;
+			}
+		}
+		fclose(fp);
+		return(error);
+	}
+}
 /* --------------------------------------------------
 
 writeNetworkActivationStateToFile
@@ -1131,35 +1250,29 @@ void Network::writeNetworkOutputStateToFile(char * file_name)
 	fclose(fp);
 }
 
-/* This version of writeNetworkOutputStateToFile, also print the current cylce to the file */
-void Network::writeNetworkOutputStateToFile(char * file_name, int currentCylce)
-{
-	int i;
-	FILE *fp;
 
-	fp = fopen(file_name, "a");
-
-	for (i = 0; i < networkDimension; ++i) {
-
-		//std::cout << "Current cycle: " << currentCycle << std::endl;
-		fprintf(fp, "%lf ", neuronOutput[i]);
-
-	}
-
-	fprintf(fp, "\n");
-	fclose(fp);
-}
+/* Added By Roberto Coyotl This function writes only the ouputs of your network to a file
+ * Added for the purpose of speeding up the Paramaterized trial study for the wilson oscillator.
+ */
 void Network::writeNetworkOuputToFile(char *fileName)
 {
-	int i;
 	FILE *fp;
 	fp = fopen(fileName , "a");
-	for (i = 0; i< numberOfOutputs; ++i) {
+	for (int i = 0; i< numberOfOutputs; ++i) {
 		fprintf( fp, "%f ", networkOutputs[i]);
 	}
 	fprintf(fp,"\n");
 	fclose(fp);
+}
 
+void Network::writeTrialInfo(char* fileName, int currentTrial) {// Added by Roberto Coyotl
+	FILE *fp;
+
+	fp = fopen(fileName, "a");
+	fprintf(fp, "Your current trial number is: ");
+	fprintf(fp, "%d", currentTrial);
+	fprintf(fp, "\n");
+	fclose(fp);
 }
 /* --------------------------------------------------
 
@@ -1269,3 +1382,6 @@ int Network::computeWeightIndex( int source_neuron_number, int target_neuron_num
 {
 	return( networkDimension*source_neuron_number + target_neuron_number );
 }
+
+
+
