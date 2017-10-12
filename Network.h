@@ -1,9 +1,6 @@
 // Network.h: interface for the Network class.
 //
 //////////////////////////////////////////////////////////////////////
-#include "stdafx.h"
-#include<iostream>
-using namespace std;
 
 #if !defined(AFX_NETWORK_H__8E7C932B_D833_4E1F_9EDC_ED09AFCF876A__INCLUDED_)
 #define AFX_NETWORK_H__8E7C932B_D833_4E1F_9EDC_ED09AFCF876A__INCLUDED_
@@ -16,27 +13,6 @@ using namespace std;
 #define MAX_NET_INPUTS 10		// Cannot exceed the size of the net
 #define MAX_NET_OUTPUTS 10		// Cannot exceed the size of the net
 #define MAX_DUMMY_STRING_LENGTH 30
-
-/* Added by Roberto Coyotl for the purposes of the of the trial sensetivity study.*/
-
-struct Parameters {
-	double alpha = 0.100000, beta = 0.10000, gamma = 0.1000000, delta = 0.100000, epsilon = -0.1000000, eta = -0.1000000;
-
-	void writeParametersToFile(char* fileName) {
-
-		FILE *fp = fopen(fileName,"a");
-		fprintf(fp, "Your current parameter values are :\n");
-		fprintf(fp, "%f", this->alpha);
-		fprintf(fp, " "); fprintf(fp, "%f", this->beta);
-		fprintf(fp, " "); fprintf(fp, "%f", this->gamma);
-		fprintf(fp, " "); fprintf(fp, "%f", this->delta);
-		fprintf(fp, " "); fprintf(fp, "%f", this->epsilon);
-		fprintf(fp, " "); fprintf(fp, "%f", this->eta);
-		fprintf(fp, "\n");
-		fclose(fp);
-	}
-};
-
 
 class Network
 {
@@ -91,7 +67,6 @@ private:
 	void Network::normalizeNonDiagonalExcitatoryNeuronWeights(void);
 	void Network::setNeuronWeightTotal(double value);
 	int Network::computeWeightIndex(int source_neuron_number, int target_neuron_number);
-	void Network::squashNeuronOutputs(double max, double slope, double xoffset );
 
 public:
 	void Network::cycleNetwork(void);
@@ -115,10 +90,6 @@ public:
 	void Network::setNetworkWeights(double value);
 	double Network::squashingFunction(double value, double max, double slope, double xoffset); // 11/07/2016
 	void Network::PrintNetworkState(void);
-	void Network::writeNetworkOuputToFile(char *fileName);// Addedby roberto Coyotl 4/11/17
-	void Network::writeTrialInfo(char* fileName, int currentTrial);// Added by Roberto Coyotl
-	int Network::writeNetworkToFile(char * file_name, double alpha, double beta, double gamma, double delta, double epsilon, double eta);// Added by roberto Coyotl
-
 
 };
 
