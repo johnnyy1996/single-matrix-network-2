@@ -1,54 +1,37 @@
 // SIngleMatrixNetwork.cpp : Defines the entry point for the console application.
-//
 
 #include "stdafx.h"
 #include "Network.h"
 #include <math.h>
 #include <stdio.h>
 
+const int NUMBER_OF_INPUTS = 10; //number of inputs in network
+const int MAX_TIME_STEP = 1000; //number of time steps
+const int INPUT_SIZE = NUMBER_OF_INPUTS * MAX_TIME_STEP; //number of total inputs in simulation
+
 int main(int argc, char* argv[])
 {
-	Network khepera("Ian_Test_Network_Changing_Inputs.txt"); //Ian_Test_Network_Equal_Vary_Inputs.txt
+	Network obstacle_avoidance("AvoidanceNet.txt"); //create network with parameters from file
 
-	int i = 0;
-	double input[7];
-	while (i < 710) {
+	int time_step = 0; //time step starts at 0
+	double *environment;	//declare variable to hold pointer of simulation input array
+	double input[NUMBER_OF_INPUTS]; //initializes input array
+	environment = new double[INPUT_SIZE]; //initializes file input array
+	
+	obstacle_avoidance.readInputFromFile("Avoidance_Input.txt", environment, INPUT_SIZE); //reads input from file
 
-		khepera.cycleNetwork();
-		khepera.printNetworkOutputState();
+	while (time_step < MAX_TIME_STEP) {
+		//obstacle_avoidance.cycleNetworkNormalizeHebbianLearning(); //apply plastic weights and learning rates to neurons
+		obstacle_avoidance.cycleNetwork(); //perform calculations 
+		obstacle_avoidance.printNetworkOutputState(); //print output to console
+		obstacle_avoidance.writeNetworkOutputStateToFile("Avoidance_Net_Output.txt"); //write output to file
 
-		khepera.writeNetworkOutputStateToFile("Ian_Changing_Inputs_Output_v7.txt");
+		for (int i = 0; i < NUMBER_OF_INPUTS; ++i)
+			input[i] = environment[NUMBER_OF_INPUTS * time_step + i]; //set input weights for time step
+		obstacle_avoidance.setNetworkInput(input); //set network inputs for that time step
 
-		/*
-		if (i >= 201) {
-			input[0] = input[1] = input[2] = i - 200;
-			input[3] = input[4] = input[5] = 455 - input[0];
-			input[6] = 1;
-			khepera.setNetworkInput(input);
-		}
-		if (i >= 456) {
-			input[0] = input[1] = input[2] = 455 - input[0];
-			input[3] = input[4] = input[5] = i - 200;
-			input[6] = 1;
-			khepera.setNetworkInput(input);
-		}
-		*/
-		
-		
-		if (i >= 200) {
-			input[0] = input[1] = input[2] = 1.0;
-			input[3] = input[4] = input[5] = 0.5;
-			khepera.setNetworkInput(input);
-		}
-
-		if (i >= 400) {
-			input[0] = input[1] = input[2] = 0.5;
-			input[3] = input[4] = input[5] = 1.0;
-			khepera.setNetworkInput(input);
-		}
-		++i;
-	}	
-
+		++time_step; //increment time step
+	}
 	return 0;
-
 }
+

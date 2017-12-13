@@ -40,7 +40,7 @@ private:
 	double networkWeights[MAX_NET_DIMENSION*MAX_NET_DIMENSION];
 	double networkInputs[MAX_NET_INPUTS];
 	double networkOutputs[MAX_NET_OUTPUTS];
-	short int  plasticWeightsMask[MAX_NET_DIMENSION*MAX_NET_DIMENSION]; // a filter. Plastic weights are = 1, fixed = 0. THis allows for the specification of some fixed and some plastic weights in the same neuron. This could be a binary array ( type bool) to save space. 
+	short int plasticWeightsMask[MAX_NET_DIMENSION*MAX_NET_DIMENSION]; // a filter. Plastic weights are = 1, fixed = 0. This allows for the specification of some fixed and some plastic weights in the same neuron. This could be a binary array ( type bool) to save space. 
 
 																		// Functions -------------------------
 
@@ -90,7 +90,7 @@ public:
 	void Network::setNetworkWeights(double value);
 	double Network::squashingFunction(double value, double max, double slope, double xoffset); // 11/07/2016
 	void Network::PrintNetworkState(void);
-
+	int Network::readInputFromFile(char * file_name, double *input, int input_size); // 12/03/2017 ALS
 };
 
 #endif // !defined(AFX_NETWORK_H__8E7C932B_D833_4E1F_9EDC_ED09AFCF876A__INCLUDED_)

@@ -6,6 +6,7 @@
 #include "Network.h"
 #include <stdio.h>
 #include <math.h>
+#include <fstream>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -640,6 +641,8 @@ void Network::cycleNetworkNormalizeHebbianLearning( void )
 /* *+*  */
 	hebbianExcitatoryWeightUpdate( );
 	normalizeNonDiagonalExcitatoryNeuronWeights( ); // note that this temporary value of 1.0 will ensure the weights of all the units sum to 1.0.
+	// hebbianInhibitoryWeightUpdate( );
+	// normalizeNonDiagonalInhibitoryNeuronWeights( );
 }
 
 
@@ -1211,4 +1214,40 @@ writeNetworkOutputToFile
 int Network::computeWeightIndex( int source_neuron_number, int target_neuron_number )
 {
 	return( networkDimension*source_neuron_number + target_neuron_number );
+}
+
+
+/* --------------------------------------------------
+
+FUNCTION NAME: readInputFromFile
+	AUTHOR: Andrew Situ
+	Date Created: 11/24/2017
+	Last Revised: 12/03/2017
+DESCRIPTION:	reads input file and saves it to an array
+ARGUMENTS:	file_name 	pointer to name of the input file
+			input 		pointer to the array in which values are stored
+			input_size	number of inputs
+RETURN VALUES: error	returns an int: 0 if file open is successful, 1 if not
+
+NOTES: expects the file to be formatted according to the standard network form
+
+-------------------------------------------------- */
+int Network::readInputFromFile( char * file_name, double *input, int input_size )
+{
+	int error = 0;
+	std::ifstream file(file_name);	//initialize file
+	if( file.is_open() )	//attempt to open file
+	{
+		int count = 0;
+		while( count < input_size){
+			file >> input[count];	//read in value from file
+			++count;	//move to next value
+		}
+	}
+	else{	//file open failed
+		error = 1;
+	}
+
+	file.close();	//close file
+	return(error);
 }
