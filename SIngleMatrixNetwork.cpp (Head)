@@ -1,0 +1,58 @@
+// SIngleMatrixNetwork.cpp : Defines the entry point for the console application.
+
+//
+
+#include "stdafx.h"
+
+#include "Network.h"
+
+#include <math.h>
+
+#include <stdio.h>
+
+#include <iostream>
+
+#include <vector>
+
+#include <string>
+
+#include <thread>
+
+using namespace std;
+
+int main(int argc, char* argv[]) {
+
+	double Mandibles_input[4] = { 0, 1, 1, 1};
+	const int maxCycles = 10;
+	int currentTrial = 1;
+
+	//Network leftJaw("LeftJaw.txt");
+	//Network rightJaw("RightJaw.txt");
+	Network feedback("Feedback.txt");
+
+	for (int i = 1; i <= maxCycles; i++) {
+		//leftJaw.writeTrialInfo("Left_out.txt", currentTrial);
+		//rightJaw.writeTrialInfo("Right_out.txt", currentTrial);
+		feedback.writeTrialInfo("Feedback_out.txt", currentTrial);
+		//leftJaw.setNetworkInput(Mandibles_input);
+		//rightJaw.setNetworkInput(Mandibles_input);
+		feedback.setNetworkInput(Mandibles_input);
+		//leftJaw.cycleNetwork();
+		//rightJaw.cycleNetwork();
+		feedback.cycleNetwork();
+		//leftJaw.writeNetworkOutputStateToFile("Left_out.txt");
+		//rightJaw.writeNetworkOutputStateToFile("Right_out.txt");
+		feedback.writeNetworkOutputStateToFile("Feedback_out.txt");
+		//leftJaw.writeNetworkToFile("Left_Network_out.txt");
+		//rightJaw.writeNetworkToFile("Right_Network_out.txt");
+		currentTrial++;
+	}
+
+	//Code to activate appropritate functions for the head of the hexapod
+	//HexapodHead head;
+	//double motorOutput;
+	//function to read in motor output 
+	//equation used to move the servo to the corresponding position
+	//int rightMandible = 500 + (motorOutput * 1220);
+	//int leftMandible = 2500 - (motorOutput * 1280);
+	//head.setUpMandibles(leftMandible, rightMandible );
